@@ -5,6 +5,7 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose'
 import { Company, CompanyDocument } from './schemas/company.schema'
 import { InjectModel } from '@nestjs/mongoose'
 import { IUser } from 'src/users/user.interface'
+import { User } from 'src/auth/decorator/customize'
 
 @Injectable()
 export class CompaniesService {
@@ -27,11 +28,36 @@ export class CompaniesService {
     return `This action returns a #${id} company`
   }
 
-  update(id: number, updateCompanyDto: UpdateCompanyDto) {
-    return `This action updates a #${id} company`
+  async update(id: string, updateCompanyDto: UpdateCompanyDto, @User() user: IUser) {
+    const updatedCompany = await this.companyModel.findOneAndUpdate(
+      {
+        _id: id,
+      },
+      {
+        ...updateCompanyDto,
+        updatedBy: {
+          _id: user._id,
+          email: user.email,
+        },
+      },
+    )
+    return updatedCompany
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} company`
+  async remove(id: string, user: IUser) {
+    await this.companyModel.updateOne(
+      {
+        _id: id,
+      },
+      {
+        deletedBy: {
+          _id: user._id,
+          email: user.email,
+        },
+      },
+    )
+    return this.companyModel.softDelete({
+      _id: id,
+    })
   }
 }
