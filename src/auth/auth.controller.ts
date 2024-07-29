@@ -37,4 +37,10 @@ export class AuthController {
   refreshToken(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
     return this.authService.renewToken(request, response)
   }
+
+  @Post('logout')
+  @ResponseMessage('Đăng xuất thành công!')
+  logout(@Res({ passthrough: true }) response: Response, @User() user: IUser) {
+    return this.authService.logout(response, user)
+  }
 }
