@@ -1,39 +1,42 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common'
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common'
 import { UsersService } from './users.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { Public, ResponseMessage, User } from 'src/auth/decorator/customize'
+import { IUser } from './user.interface'
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @ResponseMessage('Tạo người dùng thành công!')
   @Post()
-  create(
-    // @Body('email') email: string,
-    // @Body('password') password: string,
-    // @Body('name') name: string
-    @Body() createUserDto: CreateUserDto,
-  ) {
-    return this.usersService.create(createUserDto)
+  create(@Body() createUserDto: CreateUserDto, @User() user: IUser) {
+    return this.usersService.create(createUserDto, user)
   }
 
   @Get()
-  findAll() {
-    return this.usersService.findAll()
+  @ResponseMessage('Lấy danh sách người dùng thành công!')
+  findAll(@Query('page') currentPage: string, @Query('limit') limit: string, @Query() qs: string) {
+    return this.usersService.findAll(+currentPage, +limit, qs)
   }
 
   @Get(':id')
+  @Public()
+  @ResponseMessage('Lấy thông tin người dùng thành công!')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id)
   }
 
   @Patch()
-  update(@Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(updateUserDto)
+  @ResponseMessage('Cập nhật thông tin người dùng thành công!')
+  update(@Body() updateUserDto: UpdateUserDto, @User() user: IUser) {
+    return this.usersService.update(updateUserDto, user)
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(id)
+  @ResponseMessage('Xóa người dùng thành công!')
+  remove(@Param('id') id: string, @User() user: IUser) {
+    return this.usersService.remove(id, user)
   }
 }
