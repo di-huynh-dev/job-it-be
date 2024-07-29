@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config'
 import { ValidationPipe, VersioningType } from '@nestjs/common'
 import { JwtAuthGuard } from './auth/jwt-auth.guard'
 import { TransformInterceptor } from './core/transform.interceptor'
+import cookieParser from 'cookie-parser'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
@@ -21,6 +22,9 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     preflightContinue: false,
   })
+
+  //config cookies
+  app.use(cookieParser())
 
   //versioning
   app.setGlobalPrefix('api')
