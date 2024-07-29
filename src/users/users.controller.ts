@@ -17,7 +17,7 @@ export class UsersController {
 
   @Get()
   @ResponseMessage('Lấy danh sách người dùng thành công!')
-  findAll(@Query('page') currentPage: string, @Query('limit') limit: string, @Query() qs: string) {
+  findAll(@Query('current') currentPage: string, @Query('pageSize') limit: string, @Query() qs: string) {
     return this.usersService.findAll(+currentPage, +limit, qs)
   }
 
