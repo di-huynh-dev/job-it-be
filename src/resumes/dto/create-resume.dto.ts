@@ -11,9 +11,6 @@ export class CreateResumeDto {
   @IsNotEmpty({ message: 'url không được bỏ trống!' })
   url: string
 
-  @IsNotEmpty({ message: 'status không được bỏ trống!' })
-  status: string
-
   @IsNotEmpty({ message: 'companyId không được bỏ trống!' })
   @IsMongoId({ message: 'companyId có kiểu dữ liệu là mongo id' })
   companyId: mongoose.Schema.Types.ObjectId
@@ -26,9 +23,6 @@ export class CreateResumeDto {
 export class CreateUserCVDto {
   @IsNotEmpty({ message: 'url không được bỏ trống!' })
   url: string
-
-  @IsNotEmpty({ message: 'status không được bỏ trống!' })
-  status: string
 
   @IsNotEmpty({ message: 'companyId không được bỏ trống!' })
   @IsMongoId({ message: 'companyId có kiểu dữ liệu là mongo id' })
