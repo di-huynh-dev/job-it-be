@@ -12,21 +12,22 @@ import {
   HttpStatus,
 } from '@nestjs/common'
 import { FilesService } from './files.service'
-import { CreateFileDto } from './dto/create-file.dto'
 import { UpdateFileDto } from './dto/update-file.dto'
 import { FileInterceptor } from '@nestjs/platform-express'
+import { ResponseMessage } from 'src/auth/decorator/customize'
 
 @Controller('files')
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('fileUpload'))
+  @ResponseMessage('Upload file thành công!')
   uploadFile(
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
-          fileType: /(jpg|jpeg|image\/png|application\/pdf)$/,
+          fileType: /(jpg|jpeg|image\/jpeg|png|image\/png|application\/pdf)$/,
         })
         .addMaxSizeValidator({
           maxSize: 1024 * 1024,
@@ -37,7 +38,9 @@ export class FilesController {
     )
     file: Express.Multer.File,
   ) {
-    console.log(file)
+    return {
+      fileName: file.filename,
+    }
   }
 
   @Get()
