@@ -1,5 +1,14 @@
-import { Type } from 'class-transformer'
-import { IsNotEmpty, IsNotEmptyObject, IsObject, ValidateNested } from 'class-validator'
+import { Transform, Type } from 'class-transformer'
+import {
+  IsArray,
+  IsBoolean,
+  IsDate,
+  IsNotEmpty,
+  IsNotEmptyObject,
+  IsObject,
+  IsString,
+  ValidateNested,
+} from 'class-validator'
 import mongoose from 'mongoose'
 
 class Company {
@@ -14,7 +23,9 @@ export class CreateJobDto {
   @IsNotEmpty({ message: 'Name không được để trống!' })
   name: string
 
-  @IsNotEmpty({ message: 'Skill không được để trống!' })
+  @IsNotEmpty({ message: 'Skills không được để trống!' })
+  @IsArray({ message: 'Skills có định dạng là array!' })
+  @IsString({ each: true, message: 'Skill có định dạng string!' })
   skills: string[]
 
   @IsNotEmptyObject()
@@ -39,8 +50,16 @@ export class CreateJobDto {
   description: string
 
   @IsNotEmpty({ message: 'StartDate không được để trống!' })
+  @Transform(({ value }) => new Date(value))
+  @IsDate({ message: 'startDate có định dạng là Date!' })
   startDate: Date
 
   @IsNotEmpty({ message: 'EndDate không được để trống!' })
+  @Transform(({ value }) => new Date(value))
+  @IsDate({ message: 'endDate có định dạng là Date!' })
   endDate: Date
+
+  @IsNotEmpty({ message: 'isActive không được để trống!' })
+  @IsBoolean({ message: 'isActive có định dạng boolean' })
+  isActive: boolean
 }
