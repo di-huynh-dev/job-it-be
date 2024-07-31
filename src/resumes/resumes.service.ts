@@ -86,23 +86,26 @@ export class ResumesService {
       throw new BadRequestException(`Not found company with ${id}`)
     }
 
-    return await this.resumeModel.updateOne({
-      status: updateResumeDto.status,
-      updatedBy: {
-        _id: user._id,
-        email: user.email,
-      },
-      $push: {
-        history: {
-          status: updateResumeDto.status,
-          updatedBy: {
-            _id: user._id,
-            email: user.email,
+    return await this.resumeModel.updateOne(
+      { _id: id },
+      {
+        status: updateResumeDto.status,
+        updatedBy: {
+          _id: user._id,
+          email: user.email,
+        },
+        $push: {
+          history: {
+            status: updateResumeDto.status,
+            updatedBy: {
+              _id: user._id,
+              email: user.email,
+            },
+            updatedAt: new Date(),
           },
-          updatedAt: new Date(),
         },
       },
-    })
+    )
   }
 
   async remove(id: string, user: IUser) {
