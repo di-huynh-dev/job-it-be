@@ -8,10 +8,15 @@ import { compareSync, genSaltSync, hashSync } from 'bcryptjs'
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose'
 import { IUser } from './user.interface'
 import aqp from 'api-query-params'
+import { Role, RoleDocument } from 'src/roles/schemas/role.schema'
+import { USER_ROLE } from 'src/databases/sample'
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: SoftDeleteModel<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: SoftDeleteModel<UserDocument>,
+    @InjectModel(Role.name) private roleModel: SoftDeleteModel<RoleDocument>,
+  ) {}
 
   hashPassword = (password: string) => {
     const salt = genSaltSync(10)
@@ -46,20 +51,21 @@ export class UsersService {
     if (isExistingEmail) {
       throw new HttpException(`Email ${email} đã tồn tại!`, HttpStatus.BAD_REQUEST)
     }
+
+    //fetch user role
+    const userRole = await this.roleModel.findOne({ name: USER_ROLE })
+
     const hashPassword = this.hashPassword(password)
-    const user = await this.userModel.create({
+    const newUser = await this.userModel.create({
       name,
       email,
       password: hashPassword,
       age,
       gender,
       address,
-      role: 'USER',
+      role: userRole?._id,
     })
-    return {
-      _id: user._id,
-      createdAt: user.createdAt,
-    }
+    return newUser
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
@@ -112,7 +118,7 @@ export class UsersService {
       .findOne({
         email: username,
       })
-      .populate({ path: 'role', select: { name: 1, permissions: 1 } })
+      .populate({ path: 'role', select: { name: 1 } })
   }
 
   isValidPassword(password: string, hashPassword: string) {
@@ -171,6 +177,9 @@ export class UsersService {
   }
 
   findUserByRefreshToken = async (refreshToken: string) => {
-    return await this.userModel.findOne({ refreshToken })
+    return (await this.userModel.findOne({ refreshToken })).populate({
+      path: 'role',
+      select: { name: 1 },
+    })
   }
 }

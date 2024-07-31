@@ -7,7 +7,7 @@ import { IUser } from './user.interface'
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private usersService: UsersService) {}
 
   @ResponseMessage('Tạo người dùng thành công!')
   @Post()
@@ -24,7 +24,7 @@ export class UsersController {
   @Get(':id')
   @Public()
   @ResponseMessage('Lấy thông tin người dùng thành công!')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.usersService.findOne(id)
   }
 

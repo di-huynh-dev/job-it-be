@@ -6,6 +6,7 @@ import { RegisterUserDto } from 'src/users/dto/create-user.dto'
 import { ConfigService } from '@nestjs/config'
 import ms from 'ms'
 import { Response, Request } from 'express'
+import { RolesService } from 'src/roles/roles.service'
 
 @Injectable()
 export class AuthService {
@@ -13,6 +14,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private roleService: RolesService,
   ) {}
 
   async validateUser(username: string, pass: string): Promise<any> {
@@ -20,14 +22,20 @@ export class AuthService {
     if (user) {
       const isValid = this.usersService.isValidPassword(pass, user.password)
       if (isValid) {
-        return user
+        const userRole = user.role as unknown as { _id: string; name: string }
+        const temp = await this.roleService.findOne(userRole._id)
+        const objUser = {
+          ...user.toObject(),
+          permissions: temp?.permissions ?? [],
+        }
+        return objUser
       }
     }
     return null
   }
 
   async login(user: IUser, response: Response) {
-    const { _id, name, email, role } = user
+    const { _id, name, email, role, permissions } = user
     const payload = {
       sub: 'token login',
       iss: 'from server',
@@ -55,6 +63,7 @@ export class AuthService {
         name,
         email,
         role,
+        permissions,
       },
     }
   }
@@ -80,6 +89,10 @@ export class AuthService {
 
       //Check refresh token valid
       const user = await this.usersService.findUserByRefreshToken(refreshToken)
+
+      // fetch user roles
+      const userRole = user.role as unknown as { _id: string; name: string }
+      const temp = await this.roleService.findOne(userRole._id)
 
       if (!user) {
         throw new BadRequestException('Refresh token không hợp lệ. Vui lòng đăng nhập!')
@@ -116,6 +129,7 @@ export class AuthService {
             name,
             email,
             role,
+            permissions: temp?.permissions ?? [],
           },
         }
       }
