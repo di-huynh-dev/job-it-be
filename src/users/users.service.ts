@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common'
+import { BadGatewayException, BadRequestException, HttpException, HttpStatus, Injectable } from '@nestjs/common'
 import { CreateUserDto, RegisterUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { InjectModel } from '@nestjs/mongoose'
@@ -95,20 +95,24 @@ export class UsersService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return new HttpException('Not valid user id', HttpStatus.NOT_FOUND)
     }
-    return this.userModel.findOne(
-      {
-        _id: id,
-      },
-      {
-        password: 0,
-      },
-    )
+    return this.userModel
+      .findOne(
+        {
+          _id: id,
+        },
+        {
+          password: 0,
+        },
+      )
+      .populate({ path: 'role', select: { name: 1, _id: 1 } })
   }
 
   findOneByUsername(username: string) {
-    return this.userModel.findOne({
-      email: username,
-    })
+    return this.userModel
+      .findOne({
+        email: username,
+      })
+      .populate({ path: 'role', select: { name: 1, permissions: 1 } })
   }
 
   isValidPassword(password: string, hashPassword: string) {
@@ -133,6 +137,11 @@ export class UsersService {
   async remove(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return new HttpException('Not valid user id', HttpStatus.NOT_FOUND)
+    }
+
+    const foundUser = await this.userModel.findById({ _id: id })
+    if (foundUser.email === 'admin@gmail.com') {
+      throw new BadRequestException('Không thể xóa tài khoản admin')
     }
     await this.userModel.updateOne(
       {
