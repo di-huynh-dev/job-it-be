@@ -7,6 +7,7 @@ import { TransformInterceptor } from './core/transform.interceptor'
 import cookieParser from 'cookie-parser'
 import { join } from 'path'
 import { NestExpressApplication } from '@nestjs/platform-express'
+import helmet from 'helmet'
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
@@ -20,6 +21,7 @@ async function bootstrap() {
       whitelist: true,
     }),
   )
+
   //interceptor
   app.useGlobalInterceptors(new TransformInterceptor(reflector))
   //config cors
@@ -41,6 +43,9 @@ async function bootstrap() {
     type: VersioningType.URI,
     defaultVersion: ['1', '2'],
   })
+
+  //use helmet
+  app.use(helmet())
 
   await app.listen(configService.get('PORT'))
 }
