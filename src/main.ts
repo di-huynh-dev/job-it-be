@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser'
 import { join } from 'path'
 import { NestExpressApplication } from '@nestjs/platform-express'
 import helmet from 'helmet'
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
@@ -46,6 +47,29 @@ async function bootstrap() {
 
   //use helmet
   app.use(helmet())
+
+  //config swagger
+  const config = new DocumentBuilder()
+    .setTitle('APIs Document for Job Finder')
+    .setDescription('All apis modules')
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'Bearer',
+        bearerFormat: 'JWT',
+        in: 'header',
+      },
+      'token',
+    )
+    .addSecurityRequirements('token')
+    .build()
+  const document = SwaggerModule.createDocument(app, config)
+  SwaggerModule.setup('swagger', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  })
 
   await app.listen(configService.get('PORT'))
 }

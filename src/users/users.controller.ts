@@ -4,7 +4,9 @@ import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { Public, ResponseMessage, User } from 'src/auth/decorator/customize'
 import { IUser } from './user.interface'
+import { ApiTags } from '@nestjs/swagger'
 
+@ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
