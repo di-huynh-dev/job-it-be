@@ -9,13 +9,17 @@ import { join } from 'path'
 import { NestExpressApplication } from '@nestjs/platform-express'
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule)
   const configService = app.get(ConfigService)
 
   const reflector = app.get(Reflector)
   // guards
   app.useGlobalGuards(new JwtAuthGuard(reflector))
-  app.useGlobalPipes(new ValidationPipe())
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+    }),
+  )
   //interceptor
   app.useGlobalInterceptors(new TransformInterceptor(reflector))
   //config cors

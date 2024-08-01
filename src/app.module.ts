@@ -6,20 +6,21 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { UsersModule } from './users/users.module'
 import { AuthModule } from './auth/auth.module'
 import { softDeletePlugin } from 'soft-delete-plugin-mongoose'
-import { CompaniesModule } from './companies/companies.module';
-import { JobsModule } from './jobs/jobs.module';
-import { FilesModule } from './files/files.module';
-import { ResumesModule } from './resumes/resumes.module';
-import { PermissionsModule } from './permissions/permissions.module';
-import { RolesModule } from './roles/roles.module';
-import { DatabasesModule } from './databases/databases.module';
-import { SubscribersModule } from './subscribers/subscribers.module';
-import { MailModule } from './mail/mail.module';
+import { CompaniesModule } from './companies/companies.module'
+import { JobsModule } from './jobs/jobs.module'
+import { FilesModule } from './files/files.module'
+import { ResumesModule } from './resumes/resumes.module'
+import { PermissionsModule } from './permissions/permissions.module'
+import { RolesModule } from './roles/roles.module'
+import { DatabasesModule } from './databases/databases.module'
+import { SubscribersModule } from './subscribers/subscribers.module'
+import { MailModule } from './mail/mail.module'
+import { ScheduleModule } from '@nestjs/schedule'
 
 @Module({
   imports: [
     MongooseModule.forRootAsync({
-      imports: [ConfigModule],
+      imports: [ConfigModule, ScheduleModule.forRoot()],
       useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>('MONGODB_URI'),
         connectionFactory: (connection) => {
